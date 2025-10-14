@@ -47,15 +47,17 @@ jobs:
 
       - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip
+          python -m pip install --upgrade pip setuptools wheel
           pip install -r requirements.txt
-          # kalau playwright belum di requirements.txt, ini jaga-jaga
-          pip install playwright || true
 
-      - name: Install Playwright browsers & system deps
-        uses: microsoft/playwright-github-action@v1
+      # === Ganti action deprecated dengan CLI Playwright (robust untuk Ubuntu 24.04) ===
+      - name: Install Playwright system deps (Chromium)
+        run: sudo -E python -m playwright install-deps chromium
 
-      # Buat file .env runtime (tidak di-commit), kalau kodenya pakai python-dotenv
+      - name: Install Playwright browsers (Chromium)
+        run: python -m playwright install chromium
+
+      # Buat file .env runtime (tidak di-commit)
       - name: Generate runtime .env
         shell: bash
         run: |
@@ -79,8 +81,6 @@ jobs:
         run: |
           python backend/scraper/run_full_scrape.py
         env:
-          # Kalau script TIDAK baca .env dengan python-dotenv,
-          # variabel environment ini tetap dikirim ke proses Python.
           BASE_URL: ${{ env.BASE_URL }}
           DATABASE_URL: ${{ env.DATABASE_URL }}
           DB_PATH: ${{ env.DB_PATH }}
