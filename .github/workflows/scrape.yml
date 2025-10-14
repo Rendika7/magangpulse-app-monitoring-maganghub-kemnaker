@@ -2,7 +2,7 @@ name: Scrape every 6 hours
 
 on:
   schedule:
-    - cron: "0 */6 * * *"
+    - cron: "0 */6 * * *"  # UTC; jalan tiap 6 jam
   workflow_dispatch: {}
 
 permissions:
@@ -14,19 +14,22 @@ concurrency:
 
 jobs:
   scrape:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-22.04  # ⬅️ pin ke jammy (hindari noble error)
 
     env:
+      # Non-sensitif
       BASE_URL: ${{ vars.BASE_URL || 'https://maganghub.kemnaker.go.id/lowongan' }}
       DB_PATH: backend/data.sqlite
       REQUEST_TIMEOUT: 30
-      USE_PLAYWRIGHT: 1         # set ke 0 kalau mau full non-Playwright
+      USE_PLAYWRIGHT: 1            # set 0 kalau mau skip Playwright sepenuhnya
       USE_PLAYWRIGHT_DETAIL: 1
       DETAIL_ENRICH: 1
       DETAIL_MAX: 999999
       DETAIL_WORKERS: 6
       MAX_PAGES: 999999
       THROTTLE_SECONDS: 1.0
+
+      # Sensitif
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
       USER_AGENT: ${{ secrets.USER_AGENT }}
 
@@ -47,7 +50,7 @@ jobs:
           python -m pip install --upgrade pip setuptools wheel
           pip install -r requirements.txt
 
-      # ✅ Install browser Playwright hanya jika dipakai
+      # ✅ Install Playwright hanya jika dipakai (hindari action deprecated)
       - name: Ensure Playwright (deps + Chromium)
         if: env.USE_PLAYWRIGHT == '1'
         run: |
