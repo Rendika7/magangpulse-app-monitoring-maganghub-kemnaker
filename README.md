@@ -5,7 +5,27 @@
 MagangPulse is an **unofficial mirror dashboard** that visualizes public internship listings from **[MagangHub Kemenaker](https://maganghub.kemnaker.go.id/)** using a sleek **dark / light UI**, a **FastAPI** backend, and a **Playwright + BeautifulSoup** scraper.
 See **acceptance rate (AR)**, **demand ratio (DR)**, **program study chips**, and **company snapshots** at a glance.
 
----
+
+## 🖼️ Website Look-Like
+<table>
+  <tr>
+    <td width="50%" valign="top">
+      <a href="https://github.com/Rendika7/magangpulse-app-monitoring-maganghub-kemnaker/blob/main/gambar_website/Gambaran%20Website%201.png?raw=true">
+        <img src="https://github.com/Rendika7/magangpulse-app-monitoring-maganghub-kemnaker/blob/main/gambar_website/Gambaran%20Website%201.png?raw=true" alt="MagangPulse — Dashboard Overview" width="100%" />
+      </a>
+    </td>
+    <td width="50%" valign="top">
+      <a href="https://github.com/Rendika7/magangpulse-app-monitoring-maganghub-kemnaker/blob/main/gambar_website/Gambaran%20Website%202.png?raw=true">
+        <img src="https://github.com/Rendika7/magangpulse-app-monitoring-maganghub-kemnaker/blob/main/gambar_website/Gambaran%20Website%202.png?raw=true" alt="MagangPulse — Compare View (AR/DR)" width="100%" />
+      </a>
+    </td>
+  </tr>
+</table>
+
+<p align="center">
+  <sub>Kiri: Dashboard Overview • Kanan: Compare View (Acceptance Rate & Demand Ratio)</sub>
+</p>
+
 
 ## ✨ Features
 
