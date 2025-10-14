@@ -14,3 +14,12 @@ playwright-report
 test-results
 ms-playwright
 .cache
+
+# ==== IDE khusus ====
+How to Run.txt
+Latest All Code.txt
+proto.csv
+proto.json
+prototype_playwright_check.py
+debug_rendered.html
+debug_proto/
