@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Compare Jobs — MagangPulse</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="styles.css"/>
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/Logo MagangPulse.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="assets/Logo MagangPulse.png">
+  <link rel="apple-touch-icon" href="assets/Logo MagangPulse.png">
+  <link rel="shortcut icon" href="assets/Logo MagangPulse.png">
+  <meta name="theme-color" content="#0a0a0a">
+</head>
+<body class="bg-zinc-950 text-zinc-200 min-h-screen">
+  <header class="sticky top-0 z-10 backdrop-blur bg-zinc-950/80 border-b border-zinc-800">
+    <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+      <a href="index.html" class="text-xl font-bold tracking-tight">Magang<span class="text-violet-400">Pulse</span></a>
+      <div class="flex items-center gap-2">
+        <a href="index.html" class="px-3 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-sm">← Kembali</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-6xl mx-auto px-4 py-6 grid gap-6">
+    <section class="rounded-2xl border border-zinc-800 bg-zinc-900/60 p-5">
+      <h2 class="text-xl font-semibold">Compare Jobs</h2>
+      <p class="text-sm text-zinc-400 mt-1">Pilih 2–3 lowongan untuk dibandingkan. Ketik minimal 3 karakter untuk mulai mencari.</p>
+
+      <!-- Pickers -->
+      <div class="grid md:grid-cols-3 gap-3 mt-4">
+        <div class="cmp-slot" data-slot="0">
+          <div class="text-xs text-zinc-400 mb-1">Job #1</div>
+          <div class="relative">
+            <input class="cmp-input inp w-full" placeholder="Cari judul/perusahaan (min. 3 karakter)…"/>
+            <div class="cmp-dd absolute left-0 right-0 top-[110%] z-20 hidden rounded-xl border border-zinc-800 bg-zinc-900/95 max-h-72 overflow-auto"></div>
+          </div>
+          <div class="cmp-picked text-sm mt-2 text-zinc-300"></div>
+        </div>
+
+        <div class="cmp-slot" data-slot="1">
+          <div class="text-xs text-zinc-400 mb-1">Job #2</div>
+          <div class="relative">
+            <input class="cmp-input inp w-full" placeholder="Cari judul/perusahaan (min. 3 karakter)…"/>
+            <div class="cmp-dd absolute left-0 right-0 top-[110%] z-20 hidden rounded-xl border border-zinc-800 bg-zinc-900/95 max-h-72 overflow-auto"></div>
+          </div>
+          <div class="cmp-picked text-sm mt-2 text-zinc-300"></div>
+        </div>
+
+        <div class="cmp-slot" data-slot="2">
+          <div class="text-xs text-zinc-400 mb-1">Job #3 (opsional)</div>
+          <div class="relative">
+            <input class="cmp-input inp w-full" placeholder="Cari judul/perusahaan (min. 3 karakter)…"/>
+            <div class="cmp-dd absolute left-0 right-0 top-[110%] z-20 hidden rounded-xl border border-zinc-800 bg-zinc-900/95 max-h-72 overflow-auto"></div>
+          </div>
+          <div class="cmp-picked text-sm mt-2 text-zinc-300"></div>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-center gap-3 mt-4">
+        <button id="btn-compare" class="btn-primary disabled:opacity-50" disabled>Bandingkan</button>
+        <button id="btn-clear" class="btn-ghost">Reset</button>
+      </div>
+    </section>
+
+    <!-- Result -->
+    <section id="cmp-result" class="rounded-2xl border border-zinc-800 bg-zinc-900/60 p-5 hidden">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="font-semibold">Hasil Perbandingan</h3>
+        <div class="text-xs text-zinc-500" id="cmp-count"></div>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm border-separate" style="border-spacing:0 10px;">
+          <tbody id="cmp-tbody"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    // Ganti URL ini dengan domain API-mu (Render/Railway/Fly/VPS)
+    window.API_BASE = "https://magangpulse-api.onrender.com";
+  </script>
+
+  <script src="compare.js"></script>
+</body>
+</html>

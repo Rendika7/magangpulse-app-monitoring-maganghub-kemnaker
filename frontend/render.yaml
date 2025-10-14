@@ -1,0 +1,35 @@
+services:
+  - type: web
+    name: magangpulse-api
+    env: docker
+    plan: starter
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /api/home
+    autoDeploy: true
+    envVars:
+      - key: BASE_URL
+        sync: false
+      - key: DATABASE_URL
+        sync: false
+      - key: MAX_PAGES
+        value: "999999"
+      - key: THROTTLE_SECONDS
+        value: "1.0"
+      - key: USER_AGENT
+        value: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+      - key: REQUEST_TIMEOUT
+        value: "30"
+      - key: USE_PLAYWRIGHT
+        value: "1"
+      - key: DETAIL_ENRICH
+        value: "1"
+      - key: DETAIL_MAX
+        value: "999999"
+      - key: DETAIL_WORKERS
+        value: "6"
+
+cronJobs:
+  - name: scrape-every-4h
+    schedule: "0 */4 * * *" # tiap 4 jam
+    serviceName: magangpulse-api
+    command: "python -m backend.scraper.run_full_scrape"

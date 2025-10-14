@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>MagangPulse — Monitoring MagangHub Kemnaker</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- SheetJS untuk export XLSX -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/Logo MagangPulse.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="assets/Logo MagangPulse.png">
+  <link rel="apple-touch-icon" href="assets/Logo MagangPulse.png">
+  <meta name="theme-color" content="#0a0a0a">
+</head>
+<body class="bg-zinc-950 text-zinc-200 min-h-screen">
+  <!-- Header -->
+  <header class="sticky top-0 z-10 backdrop-blur bg-zinc-950/80 border-b border-zinc-800">
+    <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+      <h1 class="text-xl font-bold tracking-tight">
+        Magang<span class="text-violet-400">Pulse</span>
+      </h1>
+
+      <div class="flex items-center gap-3">
+        <button id="btn-export"
+          class="px-4 py-2 rounded-xl text-sm font-medium text-white bg-zinc-800 hover:bg-zinc-700">
+          Export XLSX
+        </button>
+
+        <!-- NEW: Compare Jobs -->
+        <a href="compare.html"
+          class="px-4 py-2 rounded-xl text-sm font-medium text-white bg-zinc-800 hover:bg-zinc-700">
+          Compare Jobs
+        </a>
+
+        <a id="cta-maganghub" href="https://maganghub.kemnaker.go.id/" target="_blank" rel="noopener"
+          class="px-4 py-2 rounded-xl text-sm font-medium text-white
+                bg-gradient-to-r from-violet-600 via-indigo-600 to-sky-500
+                hover:from-violet-500 hover:to-sky-400">
+          Kunjungi MagangHub
+        </a>
+      </div>
+
+
+    <!-- Theme toggle -->
+    <button id="theme-toggle"
+      class="w-10 h-10 rounded-full border border-zinc-800/70 bg-zinc-900/40 hover:bg-zinc-800/60
+            flex items-center justify-center transition"
+      title="Ganti tema">
+      <!-- Sun -->
+      <svg id="icon-sun" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <circle cx="12" cy="12" r="4" stroke-width="1.8"/>
+        <path d="M12 2v2M12 20v2M4 12H2M22 12h-2M5 5l-1.5-1.5M20.5 20.5L19 19M5 19l-1.5 1.5M20.5 3.5L19 5" stroke-width="1.8"/>
+      </svg>
+      <!-- Moon -->
+      <svg id="icon-moon" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <path d="M21 12.8A8.5 8.5 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z" stroke-width="1.8"/>
+      </svg>
+    </button>
+
+    </div>
+  </header>
+
+  <main class="max-w-6xl mx-auto px-4 py-6 grid gap-8">
+    <!-- HERO (welcoming) -->
+    <section class="rounded-3xl border border-zinc-800 bg-zinc-900/60 p-6 md:p-10 relative overflow-hidden">
+      <div class="absolute -top-16 -right-16 w-72 h-72 rounded-full bg-violet-700/10 blur-3xl"></div>
+      <div class="absolute -bottom-10 -left-10 w-72 h-72 rounded-full bg-sky-600/10 blur-3xl"></div>
+
+      <h2 class="text-2xl md:text-3xl font-extrabold">
+        Selamat datang di <span class="text-violet-400">MagangPulse</span>
+      </h2>
+      <p class="mt-2 text-zinc-300 max-w-3xl">
+        Mirror UI berbasis data publik MagangHub: jelajah lowongan, lihat peluang (Acceptance Rate),
+        dan bandingkan perusahaan—semua dalam tema gelap yang elegan.
+      </p>
+
+      <!-- Fitur (1 baris, 4 kotak) -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mt-6">
+        <div class="p-4 rounded-2xl border border-zinc-800 bg-zinc-900/70">
+          <div class="text-sm font-semibold">Peluang &amp; Statistik</div>
+          <div class="text-xs text-zinc-400 mt-1">AR/DR dihitung otomatis.</div>
+        </div>
+        <div class="p-4 rounded-2xl border border-zinc-800 bg-zinc-900/70">
+          <div class="text-sm font-semibold">Filter Komprehensif</div>
+          <div class="text-xs text-zinc-400 mt-1">Provinsi, Prodi, Perusahaan.</div>
+        </div>
+        <div class="p-4 rounded-2xl border border-zinc-800 bg-zinc-900/70">
+          <div class="text-sm font-semibold">Snapshot Ringan</div>
+          <div class="text-xs text-zinc-400 mt-1">SQLite + FastAPI.</div>
+        </div>
+        <div class="p-4 rounded-2xl border border-zinc-800 bg-zinc-900/70">
+          <div class="text-sm font-semibold">UI Compact</div>
+          <div class="text-xs text-zinc-400 mt-1">Kartu ringkas mudah dibaca.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- STATS (center aligned) + COUNTDOWN -->
+    <section class="grid sm:grid-cols-4 gap-4">
+    <div class="stat-card p-6 rounded-2xl border border-zinc-800 bg-zinc-900/60 text-center">
+      <div class="kpi-label text-sm text-zinc-300/90">Jumlah Perusahaan</div>
+      <div id="stat-perusahaan" class="kpi-number text-3xl font-extrabold mt-1">—</div>
+      </div>
+    <div class="stat-card p-6 rounded-2xl border border-zinc-800 bg-zinc-900/60 text-center">
+      <div class="kpi-label text-sm text-zinc-300/90">Jumlah Lamaran</div>
+      <div id="stat-lamaran" class="kpi-number text-3xl font-extrabold mt-1">—</div>
+      </div>
+    <div class="stat-card p-6 rounded-2xl border border-zinc-800 bg-zinc-900/60 text-center">
+      <div class="kpi-label text-sm text-zinc-300/90">Jumlah Lowongan</div>
+      <div id="stat-lowongan" class="kpi-number text-3xl font-extrabold mt-1">—</div>
+      </div>
+    <div class="stat-card p-6 rounded-2xl border border-zinc-800 bg-zinc-900/60 text-center">
+      <div class="kpi-label text-sm text-zinc-300/90">Hitung Mundur Pendaftaran</div>
+      <div id="countdown" class="kpi-number text-lg font-semibold mt-1">—</div>
+      </div>
+    </section>
+
+    <!-- Timeline -->
+    <section class="p-5 rounded-2xl border border-zinc-800 bg-zinc-900/60">
+      <div class="flex items-center justify-between">
+        <h3 class="font-semibold">Jadwal Pelaksanaan Program Pemagangan</h3>
+        <div id="home-snapshot" class="text-xs text-zinc-500"></div>
+      </div>
+      <div id="timeline" class="grid md:grid-cols-4 gap-4 mt-4"></div>
+
+      <!-- Keterangan sumber data -->
+      <p class="mt-4 text-xs text-zinc-500">
+        Data diperoleh langsung dari scraping website MagangHub dan disajikan ulang sebagai API oleh <span class="font-medium text-zinc-300">MagangPulse</span>.
+      </p>
+    </section>
+
+    <!-- Filters -->
+    <section class="grid gap-4 p-4 rounded-2xl border border-zinc-800 bg-zinc-900/60">
+      <!-- Baris 1: search + sort + page_size -->
+      <div class="grid md:grid-cols-7 gap-3">
+        <input id="q" type="text" placeholder="Cari judul/perusahaan"
+              class="px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-800 outline-none focus:ring-2 focus:ring-violet-500" />
+
+        <input id="min_ar" type="number" step="0.01" min="0" max="1" placeholder="min AR"
+              class="px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-800" />
+        <input id="max_ar" type="number" step="0.01" min="0" max="1" placeholder="max AR"
+               class="px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-800" />
+
+        <select id="sort" class="px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-800">
+          <option value="recent">Terbaru</option>
+          <option value="ar_desc">AR tertinggi</option>
+          <option value="ar_asc">AR terendah</option>
+          <option value="pelamar_desc">Pelamar terbanyak</option>
+          <option value="pelamar_asc">Pelamar tersedikit</option>
+          <option value="kuota_desc">Kuota terbesar</option>
+          <option value="kuota_asc">Kuota terkecil</option>
+        </select>
+                <select id="page_size" class="px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-800">
+          <option value="10">10 / halaman</option>
+          <option value="20">20 / halaman</option>
+          <option value="25" selected>25 / halaman</option>
+          <option value="50">50 / halaman</option>
+          <option value="100">100 / halaman</option>
+        </select>
+      </div>
+
+
+      <!-- Baris 2: multi-select filters (custom dropdown) -->
+      <div class="grid md:grid-cols-3 gap-3">
+        <div id="ms-lokasi" class="ms" data-placeholder="Provinsi (Semua)"></div>
+        <div id="ms-sektor" class="ms" data-placeholder="Program Studi (Semua)"></div>
+        <div id="ms-perusahaan" class="ms" data-placeholder="Perusahaan (Semua)"></div>
+      </div>
+
+
+
+
+      <!-- tombol di tengah -->
+      <div class="flex items-center justify-center gap-3">
+        <button id="btnApply"
+          class="px-4 py-2 rounded-xl font-medium text-white
+                 bg-gradient-to-r from-violet-600 via-indigo-600 to-sky-500
+                 hover:from-violet-500 hover:to-sky-400">
+          Terapkan
+        </button>
+        <button id="btnReset"
+          class="px-4 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700">
+          Reset
+        </button>
+      </div>
+    </section>
+
+    <!-- List + Companies -->
+    <section class="grid md:grid-cols-3 gap-4">
+      <div class="md:col-span-2 p-4 rounded-2xl border border-zinc-800 bg-zinc-900/60">
+        <h2 class="font-semibold mb-3">Lowongan</h2>
+        <!-- grid 3 kolom desktop -->
+        <div id="jobs" class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3"></div>
+        <div id="pager" class="flex items-center justify-center gap-1 mt-4"></div>
+
+      </div>
+
+      <div class="p-4 rounded-2xl border border-zinc-800 bg-zinc-900/60">
+        <!-- Judul di atas -->
+        <h2 class="font-semibold mb-2">TOP 15 Perusahaan (ringkas)</h2>
+        <!-- Baris filter DI BAWAH judul -->
+        <div class="flex flex-wrap items-center gap-2 mb-3">
+          <span class="text-xs text-zinc-400">Urutkan:</span>
+          <select id="co-sort" class="px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-sm">
+            <option value="ar">Top AR rata-rata</option>
+            <option value="aktif">Top Aktif</option>
+            <option value="kuota">Top Jumlah Lowongan</option>
+          </select>
+          <select id="co-order" class="px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-sm">
+            <option value="desc">Desc</option>
+            <option value="asc">Asc</option>
+          </select>
+        </div>
+        <div id="companies" class="grid gap-2"></div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="py-6 text-center text-xs text-zinc-400 space-y-1">
+    <div>
+      Made with ❤ by
+      <a href="https://www.instagram.com/rendika__07/?hl=en" target="_blank" class="underline hover:text-zinc-200">Rendika</a>
+      • MagangPulse – Monitoring
+      <a href="https://maganghub.kemnaker.go.id/" target="_blank" class="underline hover:text-zinc-200">MagangHub Kemnaker</a>
+    </div>
+    <div class="space-x-3">
+      📍 Fresh Graduate from <a class="underline hover:text-zinc-200" target="_blank" href="https://surabaya.telkomuniversity.ac.id/">Telkom University Surabaya</a>
+      • 💼 <a class="underline hover:text-zinc-200" target="_blank" href="https://www.linkedin.com/in/rendikanurhartanto-s">LinkedIn</a>
+      • <a class="underline hover:text-zinc-200" target="_blank" href="https://github.com/Rendika7">GitHub</a>
+      • <a class="underline hover:text-zinc-200" target="_blank" href="https://www.tiktok.com/@akukamukita.7?lang=en">Tiktok</a>
+    </div>
+  </footer>
+
+  <script>
+    // Ganti URL ini dengan domain API-mu (Render/Railway/Fly/VPS)
+    window.API_BASE = "https://magangpulse-api.onrender.com";
+  </script>
+
+  <script src="app.js"></script>
+</body>
+</html>
