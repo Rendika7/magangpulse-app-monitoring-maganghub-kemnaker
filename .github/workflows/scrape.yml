@@ -14,13 +14,13 @@ concurrency:
 
 jobs:
   scrape:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
 
     env:
       BASE_URL: ${{ vars.BASE_URL || 'https://maganghub.kemnaker.go.id/lowongan' }}
       DB_PATH: backend/data.sqlite
       REQUEST_TIMEOUT: 30
-      USE_PLAYWRIGHT: 1
+      USE_PLAYWRIGHT: 1         # set ke 0 kalau mau full non-Playwright
       USE_PLAYWRIGHT_DETAIL: 1
       DETAIL_ENRICH: 1
       DETAIL_MAX: 999999
@@ -47,16 +47,12 @@ jobs:
           python -m pip install --upgrade pip setuptools wheel
           pip install -r requirements.txt
 
-      # 🔧 GANTI STEP INI (jangan pakai action v1 yang deprecated)
-      # - name: Install Playwright browsers & system deps
-      #   uses: microsoft/playwright-github-action@v1
-
-      # ✅ Pakai CLI Playwright (robust untuk Ubuntu 24.04)
-      - name: Install Playwright system deps (Chromium)
-        run: sudo -E python -m playwright install-deps chromium
-
-      - name: Install Playwright browsers (Chromium)
-        run: python -m playwright install chromium
+      # ✅ Install browser Playwright hanya jika dipakai
+      - name: Ensure Playwright (deps + Chromium)
+        if: env.USE_PLAYWRIGHT == '1'
+        run: |
+          sudo -E python -m playwright install-deps chromium
+          python -m playwright install chromium
 
       - name: Generate runtime .env
         shell: bash
