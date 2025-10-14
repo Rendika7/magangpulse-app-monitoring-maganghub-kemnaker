@@ -2,8 +2,8 @@ name: Scrape every 6 hours
 
 on:
   schedule:
-    - cron: "0 */6 * * *"  # UTC; jalan tiap 6 jam
-  workflow_dispatch: {}     # bisa manual run juga
+    - cron: "0 */6 * * *"
+  workflow_dispatch: {}
 
 permissions:
   contents: read
@@ -17,7 +17,6 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      # ===== Non-sensitif (boleh hardcode / pakai Repository Variables) =====
       BASE_URL: ${{ vars.BASE_URL || 'https://maganghub.kemnaker.go.id/lowongan' }}
       DB_PATH: backend/data.sqlite
       REQUEST_TIMEOUT: 30
@@ -28,10 +27,8 @@ jobs:
       DETAIL_WORKERS: 6
       MAX_PAGES: 999999
       THROTTLE_SECONDS: 1.0
-
-      # ===== Sensitif (pakai Secrets) =====
-      DATABASE_URL: ${{ secrets.DATABASE_URL }}   # ex: postgresql://user:pass@host/db?sslmode=require
-      USER_AGENT: ${{ secrets.USER_AGENT }}       # isi UA Chrome-mu
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      USER_AGENT: ${{ secrets.USER_AGENT }}
 
     steps:
       - name: Checkout
@@ -50,14 +47,17 @@ jobs:
           python -m pip install --upgrade pip setuptools wheel
           pip install -r requirements.txt
 
-      # === Ganti action deprecated dengan CLI Playwright (robust untuk Ubuntu 24.04) ===
+      # 🔧 GANTI STEP INI (jangan pakai action v1 yang deprecated)
+      # - name: Install Playwright browsers & system deps
+      #   uses: microsoft/playwright-github-action@v1
+
+      # ✅ Pakai CLI Playwright (robust untuk Ubuntu 24.04)
       - name: Install Playwright system deps (Chromium)
         run: sudo -E python -m playwright install-deps chromium
 
       - name: Install Playwright browsers (Chromium)
         run: python -m playwright install chromium
 
-      # Buat file .env runtime (tidak di-commit)
       - name: Generate runtime .env
         shell: bash
         run: |
