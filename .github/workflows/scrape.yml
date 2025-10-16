@@ -20,14 +20,14 @@ jobs:
       # ===== Non-sensitif (boleh hardcode / pakai Repository Variables) =====
       BASE_URL: ${{ vars.BASE_URL || 'https://maganghub.kemnaker.go.id/lowongan' }}
       DB_PATH: backend/data.sqlite
-      REQUEST_TIMEOUT: 30
-      USE_PLAYWRIGHT: 1            # set 0 kalau mau skip Playwright total
-      USE_PLAYWRIGHT_DETAIL: 1
-      DETAIL_ENRICH: 1
-      DETAIL_MAX: 999999
-      DETAIL_WORKERS: 6
-      MAX_PAGES: 999999
-      THROTTLE_SECONDS: 1.0
+      REQUEST_TIMEOUT: "30"
+      USE_PLAYWRIGHT: "1"            # set "0" kalau mau skip Playwright total
+      USE_PLAYWRIGHT_DETAIL: "1"
+      DETAIL_ENRICH: "1"
+      DETAIL_MAX: "999999"
+      DETAIL_WORKERS: "6"
+      MAX_PAGES: "999999"
+      THROTTLE_SECONDS: "1.0"
 
       # ===== Sensitif (pakai Secrets) =====
       DATABASE_URL: ${{ secrets.DATABASE_URL }}   # ex: postgresql://user:pass@host/db?sslmode=require
@@ -54,8 +54,12 @@ jobs:
       - name: Ensure Playwright (deps + Chromium)
         if: env.USE_PLAYWRIGHT == '1'
         run: |
-          sudo -E python -m playwright install-deps chromium
-          python -m playwright install chromium
+          # Pastikan paket playwright ada (aman meski sudah ada di requirements.txt)
+          pip install "playwright==1.47.0"
+          # Install OS deps (butuh sudo) via CLI, bukan python -m
+          sudo -E playwright install-deps chromium
+          # Install browser binary ke cache runner
+          playwright install chromium
 
       # Buat file .env runtime (tidak di-commit), jika kode pakai python-dotenv
       - name: Generate runtime .env
@@ -99,12 +103,3 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: scrape-output
-          path: |
-            backend/*.sqlite*
-            backend/data.sqlite
-            **/*.csv
-            **/*.json
-            !node_modules/**
-            !**/tmp/**
-          if-no-files-found: ignore
-          retention-days: 14
