@@ -56,8 +56,6 @@ jobs:
         run: |
           # Pastikan paket playwright ada (aman meski sudah ada di requirements.txt)
           pip install "playwright==1.47.0"
-          # Install OS deps (butuh sudo) via CLI, bukan python -m
-          sudo -E playwright install-deps chromium
           # Install browser binary ke cache runner
           playwright install chromium
 
