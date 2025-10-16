@@ -2,8 +2,8 @@ name: Scrape every 6 hours
 
 on:
   schedule:
-    - cron: "0 */6 * * *"  # UTC; jalan tiap 6 jam
-  workflow_dispatch: {}     # bisa manual run juga
+    - cron: "0 */6 * * *"
+  workflow_dispatch: {}
 
 permissions:
   contents: read
@@ -14,52 +14,36 @@ concurrency:
 
 jobs:
   scrape:
-    runs-on: ubuntu-22.04  # pin ke jammy biar stabil
+    runs-on: ubuntu-22.04
+    container: mcr.microsoft.com/playwright/python:v1.47.0-jammy
 
     env:
-      # ===== Non-sensitif (boleh hardcode / pakai Repository Variables) =====
       BASE_URL: ${{ vars.BASE_URL || 'https://maganghub.kemnaker.go.id/lowongan' }}
       DB_PATH: backend/data.sqlite
       REQUEST_TIMEOUT: "30"
-      USE_PLAYWRIGHT: "1"            # set "0" kalau mau skip Playwright total
+      USE_PLAYWRIGHT: "1"
       USE_PLAYWRIGHT_DETAIL: "1"
       DETAIL_ENRICH: "1"
       DETAIL_MAX: "999999"
       DETAIL_WORKERS: "6"
       MAX_PAGES: "999999"
       THROTTLE_SECONDS: "1.0"
-
-      # ===== Sensitif (pakai Secrets) =====
-      DATABASE_URL: ${{ secrets.DATABASE_URL }}   # ex: postgresql://user:pass@host/db?sslmode=require
-      USER_AGENT: ${{ secrets.USER_AGENT }}       # isi dengan UA Chrome kamu
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      USER_AGENT: ${{ secrets.USER_AGENT }}
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
-          cache: "pip"
-          cache-dependency-path: |
-            requirements.txt
-
-      - name: Install dependencies
+      - name: Install Python deps
         run: |
           python -m pip install --upgrade pip setuptools wheel
           pip install -r requirements.txt
-
-      # ✅ Install Playwright (deps OS + Chromium) hanya jika dipakai
-      - name: Ensure Playwright (deps + Chromium)
-        if: env.USE_PLAYWRIGHT == '1'
-        run: |
-          # Pastikan paket playwright ada (aman meski sudah ada di requirements.txt)
+          # Pastikan playwright terpasang (walau image sudah include)
           pip install "playwright==1.47.0"
-          # Install browser binary ke cache runner
+          # Browser sudah ada, tapi aman kalau re-install:
           playwright install chromium
 
-      # Buat file .env runtime (tidak di-commit), jika kode pakai python-dotenv
       - name: Generate runtime .env
         shell: bash
         run: |
@@ -83,7 +67,6 @@ jobs:
         run: |
           python backend/scraper/run_full_scrape.py
         env:
-          # kirim env eksplisit juga (aman kalau .env tidak dibaca)
           BASE_URL: ${{ env.BASE_URL }}
           DATABASE_URL: ${{ env.DATABASE_URL }}
           DB_PATH: ${{ env.DB_PATH }}
@@ -101,3 +84,12 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: scrape-output
+          path: |
+            backend/*.sqlite*
+            backend/data.sqlite
+            **/*.csv
+            **/*.json
+            !node_modules/**
+            !**/tmp/**
+          if-no-files-found: ignore
+          retention-days: 14
