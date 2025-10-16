@@ -30,6 +30,8 @@ jobs:
       THROTTLE_SECONDS: "1.0"
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
       USER_AGENT: ${{ secrets.USER_AGENT }}
+      # >>> Kunci supaya `from backend...` ketemu
+      PYTHONPATH: ${{ github.workspace }}
 
     steps:
       - name: Checkout
@@ -39,10 +41,15 @@ jobs:
         run: |
           python -m pip install --upgrade pip setuptools wheel
           pip install -r requirements.txt
-          # Pastikan playwright terpasang (walau image sudah include)
           pip install "playwright==1.47.0"
-          # Browser sudah ada, tapi aman kalau re-install:
           playwright install chromium
+
+      # (Opsional) Pastikan package init ada
+      - name: Ensure Python packages exist
+        run: |
+          mkdir -p backend/scraper
+          [ -f backend/__init__.py ] || touch backend/__init__.py
+          [ -f backend/scraper/__init__.py ] || touch backend/scraper/__init__.py
 
       - name: Generate runtime .env
         shell: bash
@@ -63,9 +70,9 @@ jobs:
             echo "THROTTLE_SECONDS=${THROTTLE_SECONDS}"
           } > .env
 
-      - name: Run scraper
+      - name: Run scraper (module mode)
         run: |
-          python backend/scraper/run_full_scrape.py
+          python -m backend.scraper.run_full_scrape
         env:
           BASE_URL: ${{ env.BASE_URL }}
           DATABASE_URL: ${{ env.DATABASE_URL }}
@@ -79,6 +86,7 @@ jobs:
           DETAIL_WORKERS: ${{ env.DETAIL_WORKERS }}
           MAX_PAGES: ${{ env.MAX_PAGES }}
           THROTTLE_SECONDS: ${{ env.THROTTLE_SECONDS }}
+          PYTHONPATH: ${{ env.PYTHONPATH }}
 
       - name: Upload artifacts (SQLite/CSV/JSON)
         uses: actions/upload-artifact@v4
